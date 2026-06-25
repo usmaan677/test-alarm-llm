@@ -5,3 +5,5 @@ __pycache__/
 *.gguf
 sops/*.pdf
 .DS_Store
+chroma_db/
+audit_log.jsonl
