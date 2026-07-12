@@ -46,13 +46,15 @@ _query_engine = None
 
 
 def _load_procedure_chunks():
-    """Read the SOP file and split it into one chunk per procedure.
+    """Read every SOP file and split it into one chunk per procedure.
 
-    Each procedure in the source starts with a 'SOP-032-' marker. Splitting
-    on that keeps every procedure whole and self-contained, so retrieval
-    returns one clean chunk per alarm instead of a blend of several.
+    Procedures are bracketed by lines of '=' in the source files. We use a
+    regex to grab each 'SOP-XXX-Y : TITLE' block as one self-contained chunk,
+    regardless of the document number (032, 045, 051, ...). This keeps each
+    procedure whole so retrieval returns one clean chunk per alarm.
     """
     import os
+    import re
 
     documents = []
     for fname in os.listdir(config.SOPS_DIR):
@@ -62,19 +64,25 @@ def _load_procedure_chunks():
         with open(path, "r", encoding="utf-8") as f:
             text = f.read()
 
-        # Split on the procedure marker. Keep the marker with each piece.
-        parts = text.split("SOP-032-")
-        header = parts[0]  # intro/general-notes block before the first procedure
+        # Find each procedure block: starts at a 'SOP-<digits>-<letter> :' header
+        # and runs until the next such header or end of file.
+        pattern = r"(SOP-\d+-[A-Z]\s*:.*?)(?=SOP-\d+-[A-Z]\s*:|={5,}\s*END|\Z)"
+        matches = re.findall(pattern, text, re.DOTALL)
 
-        if header.strip():
-            documents.append(Document(text=header, metadata={"file_name": fname}))
-
-        for part in parts[1:]:
-            chunk = "SOP-032-" + part
-            documents.append(Document(text=chunk.strip(), metadata={"file_name": fname}))
+        if matches:
+            for block in matches:
+                chunk = block.strip().rstrip("=").strip()
+                if chunk:
+                    documents.append(
+                        Document(text=chunk, metadata={"file_name": fname})
+                    )
+        else:
+            # Fallback: if a file has no procedure markers, index it whole.
+            documents.append(Document(text=text.strip(), metadata={"file_name": fname}))
 
     return documents
- 
+
+
 def _build_query_engine():
     """Set up models, load or build the Chroma index, return a query engine."""
     Settings.llm = Ollama(

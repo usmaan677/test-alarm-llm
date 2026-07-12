@@ -35,8 +35,10 @@ export default function StatusBar() {
         <span className="status-bar-title">ALARM ASSIST — PROCEDURE CONSOLE</span>
       </div>
       <div className="status-bar-right">
-        <span className={`led led-${linkState}`} aria-hidden="true" />
-        <span className="status-bar-link">{linkLabel}</span>
+        <span className="status-bar-link">
+          <span className={`led led-${linkState}`} aria-hidden="true" />
+          {linkLabel}
+        </span>
         <span className="status-bar-clock">
           {now.toISOString().slice(0, 19).replace('T', ' ')} UTC
         </span>

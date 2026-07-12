@@ -37,7 +37,7 @@ export default function App() {
 
       <main className="chat">
         {exchanges.length === 0 ? (
-          <p className="chat-empty">STANDBY — ENTER AN ALARM CONDITION BELOW</p>
+          <p className="chat-empty">ENTER AN ALARM CONDITION BELOW</p>
         ) : (
           exchanges.map((e) => <Exchange key={e.id} exchange={e} />)
         )}

@@ -1,0 +1,77 @@
+STANDARD OPERATING PROCEDURE
+SAGD Once-Through Steam Generator (OTSG)
+Emergency Shutdown and Alarm Response
+Document: SOP-032  |  Revision: 4  |  Classification: Operational - Control Room
+
+=====================================================================
+GENERAL NOTES
+=====================================================================
+
+All Emergency Shutdown (ESD) actions in this document are fail-safe
+(de-energize to trip) and follow ISA-84 / IEC 61511 SIL requirements.
+Operators must acknowledge every alarm on the HMI and verify the reading
+against a redundant transmitter before any manual shutdown, unless an
+automatic ESD has already triggered.
+
+ESD Levels:
+  ESD Level 1 - Plant-wide shutdown
+  ESD Level 2 - Unit shutdown (single process unit)
+  ESD Level 3 - Loop or well shutdown (most localized)
+
+=====================================================================
+SOP-032-A : OTSG STEAM DRUM PRESSURE VERY HIGH
+=====================================================================
+
+Alarm Tag:        PAHH-101
+Equipment:        Once-Through Steam Generator (OTSG)
+Trip Condition:   Steam drum pressure greater than 11,500 kPag
+ESD Level:        Level 2 (Unit)
+
+Required Action:
+  1. Acknowledge the PAHH-101 alarm on the control room HMI.
+  2. Verify the pressure reading against the redundant pressure
+     transmitter PT-101B.
+  3. If pressure is confirmed above 11,500 kPag, shut the OTSG.
+  4. Close steam shutdown valves SDV-101 and SDV-102.
+  5. Confirm both SDVs have reached the fully closed position.
+  6. Notify the shift supervisor and log the event with timestamp.
+  7. Do not restart the OTSG until the root cause has been identified
+     and the high-pressure condition has cleared.
+
+=====================================================================
+SOP-032-B : OTSG STACK TEMPERATURE VERY HIGH
+=====================================================================
+
+Alarm Tag:        TAHH-101
+Equipment:        OTSG Stack
+Trip Condition:   Stack temperature greater than 400 degrees C
+ESD Level:        Level 3 (Loop)
+
+Required Action:
+  1. Acknowledge the TAHH-101 alarm on the HMI.
+  2. Trip the OTSG burner immediately.
+  3. Close the fuel gas shutdown valve SDV-FG-101.
+  4. Verify burner flame-out via the burner management system.
+  5. Notify the shift supervisor and log the event.
+  6. Inspect for fuel gas valve leak-by before any restart attempt.
+
+=====================================================================
+SOP-032-C : OTSG FEEDWATER FLOW VERY LOW
+=====================================================================
+
+Alarm Tag:        FALL-102
+Equipment:        OTSG Feedwater Line
+Trip Condition:   Feedwater flow less than 40 percent of setpoint
+ESD Level:        Level 2 (Unit)
+
+Required Action:
+  1. Acknowledge the FALL-102 alarm on the HMI.
+  2. Trip the OTSG burner to prevent tube dry-out.
+  3. Close the fuel gas shutdown valve SDV-FG-101.
+  4. Verify feedwater pump status and check for line blockage.
+  5. Notify the shift supervisor and log the event.
+  6. Do not restart until feedwater flow is restored and verified.
+
+=====================================================================
+END OF DOCUMENT SOP-032 REV 4
+=====================================================================

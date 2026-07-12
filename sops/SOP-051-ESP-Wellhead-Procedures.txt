@@ -1,0 +1,78 @@
+STANDARD OPERATING PROCEDURE
+SAGD Well Pad — ESP and Wellhead Equipment
+Emergency Shutdown and Alarm Response
+Document: SOP-051  |  Revision: 3  |  Classification: Operational - Control Room
+
+=====================================================================
+GENERAL NOTES
+=====================================================================
+
+Covers Electric Submersible Pump (ESP) and injection/production wellhead
+alarms. All ESD actions are fail-safe. Acknowledge alarms on the HMI and
+verify against redundant instrumentation before manual action.
+
+=====================================================================
+SOP-051-A : ESP MOTOR TEMPERATURE VERY HIGH
+=====================================================================
+
+Alarm Tag:        TAHH-ESP
+Equipment:        Electric Submersible Pump (ESP) Motor
+Trip Condition:   Motor temperature greater than 220 degrees C
+ESD Level:        Level 3 (Well)
+
+Required Action:
+  1. Acknowledge the TAHH-ESP alarm on the HMI.
+  2. Trip the ESP.
+  3. Close the well shutdown valve SDV-201.
+  4. Allow the motor to cool before any restart attempt.
+  5. Notify the shift supervisor and log the event.
+
+=====================================================================
+SOP-051-B : ESP INTAKE PRESSURE VERY LOW
+=====================================================================
+
+Alarm Tag:        PALL-ESP
+Equipment:        Electric Submersible Pump (ESP) Intake
+Trip Condition:   Intake pressure less than 500 kPag
+ESD Level:        Level 3 (Well)
+
+Required Action:
+  1. Acknowledge the PALL-ESP alarm on the HMI.
+  2. Trip the ESP to prevent pump-off and gas locking.
+  3. Raise the low-intake-pressure alarm to the shift supervisor.
+  4. Investigate reservoir inflow before restart.
+
+=====================================================================
+SOP-051-C : INJECTION WELLHEAD TEMPERATURE VERY LOW
+=====================================================================
+
+Alarm Tag:        TALL-INJ
+Equipment:        Injection Wellhead
+Trip Condition:   Temperature less than 100 degrees C
+ESD Level:        Level 3 (Well)
+
+Required Action:
+  1. Acknowledge the TALL-INJ alarm on the HMI.
+  2. Close the injection shutdown valve SDV-101.
+  3. Raise the low-temperature alarm to the shift supervisor.
+  4. Investigate steam supply loss to the injection wellhead.
+
+=====================================================================
+SOP-051-D : PRODUCTION WELLHEAD PRESSURE VERY HIGH
+=====================================================================
+
+Alarm Tag:        PAHH-PROD
+Equipment:        Production Wellhead
+Trip Condition:   Wellhead pressure greater than 3,500 kPag
+ESD Level:        Level 3 (Well)
+
+Required Action:
+  1. Acknowledge the PAHH-PROD alarm on the HMI.
+  2. Close the production wing valve SDV-301.
+  3. Confirm wellhead pressure begins to fall.
+  4. Notify the shift supervisor and log the event.
+  5. Do not reopen until the overpressure cause is identified.
+
+=====================================================================
+END OF DOCUMENT SOP-051 REV 3
+=====================================================================

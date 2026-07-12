@@ -14,7 +14,7 @@ COLLECTION_NAME = "sops"
 SOPS_DIR = "sops" 
 
 #Retrival
-SIMILARITY_TOP_K = 4                 
+SIMILARITY_TOP_K = 2                 
 RESPONSE_MODE = "tree_summarize" 
 
 #Audit

@@ -2,6 +2,17 @@
 // as an operator entry aligned right; the response resolves in place below it.
 // Banner colors follow control-room convention: green = procedure retrieved,
 // amber = no matching procedure, red = link fault.
+
+// Buckets a raw similarity score into an operator-readable match rating.
+// Thresholds are heuristic for nomic-embed-text cosine scores, where matching
+// procedures land around 0.55+ and unrelated chunks fall below 0.45.
+function matchRating(score) {
+  if (score == null) return { label: 'N/A', tone: 'weak' }
+  if (score >= 0.55) return { label: 'GOOD MATCH', tone: 'good' }
+  if (score >= 0.45) return { label: 'SLIGHT MATCH', tone: 'slight' }
+  return { label: 'WEAK', tone: 'weak' }
+}
+
 export default function Exchange({ exchange }) {
   const { question, status, result } = exchange
 
@@ -39,29 +50,29 @@ export default function Exchange({ exchange }) {
             </div>
           )}
 
-          {result.matched && <pre className="response-answer">{result.answer}</pre>}
+          {result.matched && (
+            <div className="response-body">
+              <span className="panel-label">RESPONSE PROCEDURE</span>
+              <pre className="response-answer">{result.answer}</pre>
+            </div>
+          )}
 
-          {result.sources.length > 0 && (
+          {result.matched && result.sources.length > 0 && (
             <div className="source-block">
-              <span className="panel-label">RETRIEVAL PROVENANCE</span>
-              <table className="source-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>SOURCE FILE</th>
-                    <th>RELEVANCE</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.sources.map((s, i) => (
-                    <tr key={i}>
-                      <td>{String(i + 1).padStart(2, '0')}</td>
-                      <td>{s.file}</td>
-                      <td>{s.score != null ? s.score.toFixed(4) : '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <span className="source-label">SOURCES</span>
+              <ul className="source-list">
+                {result.sources.map((s, i) => {
+                  const rating = matchRating(s.score)
+                  return (
+                    <li key={i}>
+                      <span className="source-file">{s.file}</span>
+                      <span className={`match-badge match-${rating.tone}`}>
+                        {rating.label}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
             </div>
           )}
         </div>

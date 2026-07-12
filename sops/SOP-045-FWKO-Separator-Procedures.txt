@@ -1,0 +1,63 @@
+STANDARD OPERATING PROCEDURE
+Free Water Knockout (FWKO) Separator
+Emergency Shutdown and Alarm Response
+Document: SOP-045  |  Revision: 2  |  Classification: Operational - Control Room
+
+=====================================================================
+GENERAL NOTES
+=====================================================================
+
+All ESD actions are fail-safe (de-energize to trip). Acknowledge every
+alarm on the HMI and verify against a redundant transmitter before manual
+action unless an automatic ESD has already triggered.
+
+=====================================================================
+SOP-045-A : FWKO SEPARATOR LEVEL VERY HIGH
+=====================================================================
+
+Alarm Tag:        LAHH-201
+Equipment:        Free Water Knockout (FWKO) Separator
+Trip Condition:   Liquid level greater than 85 percent
+ESD Level:        Level 3 (Loop)
+
+Required Action:
+  1. Acknowledge the LAHH-201 alarm on the HMI.
+  2. Close the production inlet to the separator.
+  3. Stop the Electric Submersible Pump (ESP).
+  4. Confirm separator level begins to fall.
+  5. Notify the shift supervisor and log the event.
+
+=====================================================================
+SOP-045-B : FWKO SEPARATOR LEVEL VERY LOW
+=====================================================================
+
+Alarm Tag:        LALL-201
+Equipment:        Free Water Knockout (FWKO) Separator
+Trip Condition:   Liquid level less than 10 percent
+ESD Level:        Level 3 (Loop)
+
+Required Action:
+  1. Acknowledge the LALL-201 alarm on the HMI.
+  2. Close the oil outlet valve to prevent gas blow-by downstream.
+  3. Raise the low-level alarm to the shift supervisor.
+  4. Investigate inlet flow loss before resetting.
+
+=====================================================================
+SOP-045-C : FWKO SEPARATOR PRESSURE VERY HIGH
+=====================================================================
+
+Alarm Tag:        PAHH-201
+Equipment:        Free Water Knockout (FWKO) Separator
+Trip Condition:   Pressure greater than 1,200 kPag
+ESD Level:        Level 3 (Loop)
+
+Required Action:
+  1. Acknowledge the PAHH-201 alarm on the HMI.
+  2. Confirm pressure safety valve PSV-201 has opened to relieve.
+  3. Close the inlet shutdown valve SDV-201.
+  4. Monitor separator pressure until it returns below 1,200 kPag.
+  5. Notify the shift supervisor and log the event.
+
+=====================================================================
+END OF DOCUMENT SOP-045 REV 2
+=====================================================================
