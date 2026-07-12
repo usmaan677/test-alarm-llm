@@ -51,7 +51,7 @@ export default function App() {
         <QueryBar onSubmit={handleSubmit} busy={busy} />
         <div className="dock-footer">
           <span>SOP-032 · ALARM RESPONSE PROCEDURES</span>
-          <span>RETRIEVAL: CHROMA / TOP-K 4</span>
+          <span>RETRIEVAL: CHROMA / TOP-K 2</span>
         </div>
       </div>
     </div>
