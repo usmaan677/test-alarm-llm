@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import StatusBar from './components/StatusBar'
 import QueryBar from './components/QueryBar'
 import Exchange from './components/Exchange'
+import PipelineStatus from './components/PipelineStatus'
 import { askQuestion } from './api'
 
 // Session transcript: each submitted question becomes an exchange that starts
@@ -45,9 +46,7 @@ export default function App() {
       </main>
 
       <div className="dock">
-        <p className={`dock-status ${busy ? 'blink' : ''}`}>
-          {busy ? 'RETRIEVING PROCEDURE…' : 'READY'}
-        </p>
+        <PipelineStatus busy={busy} />
         <QueryBar onSubmit={handleSubmit} busy={busy} />
         <div className="dock-footer">
           <span>SOP-032 · ALARM RESPONSE PROCEDURES</span>
