@@ -1,9 +1,9 @@
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment } from 'react'
 
-// Animated pipeline readout for the dock: steps through the RAG stages while
-// a query is in flight. The backend doesn't stream progress — one POST covers
-// the whole pipeline — so stage timing here is illustrative: the early stages
-// advance on short timers and the LLM stage holds until the response lands.
+// Compact pipeline readout for the AI panel dock. Stage state comes from the
+// shared usePipelineStage hook (owned by AiPanel) so this stays in sync with
+// the detail modal. The whole readout is a button — clicking it opens the
+// full animated process view.
 
 const ICON = { width: 22, height: 22, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round', strokeLinejoin: 'round' }
 
@@ -31,68 +31,46 @@ const STAGES = [
   { key: 'response', label: 'RESPONSE',  Icon: ResponseIcon, caption: 'RESPONSE DELIVERED' },
 ]
 
-// ms before advancing past each stage; the model stage has no timer — it
-// holds until the query resolves, since that's where the real time goes.
-const STAGE_MS = [800, 1300, 1300]
-const SETTLE_MS = 2200
-const MODEL_STAGE = 3
-const RESPONSE_STAGE = 4
-
-export default function PipelineStatus({ busy }) {
-  const [stage, setStage] = useState(0)
-  const [settled, setSettled] = useState(false)
-  const wasBusy = useRef(false)
-
-  // Advance through the pre-model stages on timers while busy.
-  useEffect(() => {
-    if (!busy || stage >= MODEL_STAGE) return
-    const t = setTimeout(() => setStage((s) => s + 1), STAGE_MS[stage])
-    return () => clearTimeout(t)
-  }, [busy, stage])
-
-  // On completion, light the whole pipeline green briefly, then reset.
-  useEffect(() => {
-    if (busy) {
-      wasBusy.current = true
-      setStage(0)
-      setSettled(false)
-      return
-    }
-    if (!wasBusy.current) return
-    wasBusy.current = false
-    setStage(RESPONSE_STAGE)
-    setSettled(true)
-    const t = setTimeout(() => setSettled(false), SETTLE_MS)
-    return () => clearTimeout(t)
-  }, [busy])
-
-  if (!busy && !settled) {
-    return <p className="dock-status">READY</p>
-  }
+export default function PipelineStatus({ busy, stage, settled, onOpenDetail }) {
+  const idle = !busy && !settled
 
   return (
-    <div className="pipeline" role="status" aria-label="Query pipeline status">
-      <div className="pipeline-row">
-        {STAGES.map(({ key, label, Icon }, i) => {
-          const state = settled
-            ? 'done'
-            : i < stage ? 'done' : i === stage ? 'active' : 'idle'
-          return (
-            <Fragment key={key}>
-              {i > 0 && (
-                <span className={`pipe-link ${!settled && i === stage ? 'flowing' : i <= stage ? 'passed' : ''}`} />
-              )}
-              <span className={`pipe-node pipe-${state}`}>
-                <Icon />
-                <span className="pipe-label">{label}</span>
-              </span>
-            </Fragment>
-          )
-        })}
-      </div>
-      <p className={`pipe-caption ${settled ? 'pipe-caption-done' : ''}`}>
-        {STAGES[stage].caption}
-      </p>
-    </div>
+    <button
+      type="button"
+      className="pipeline-button"
+      onClick={onOpenDetail}
+      title="Open detailed pipeline view"
+    >
+      {idle ? (
+        <p className="dock-status">
+          READY
+          <span className="pipeline-hint">· CLICK FOR PIPELINE DETAIL ⤢</span>
+        </p>
+      ) : (
+        <div className="pipeline" role="status" aria-label="Query pipeline status">
+          <div className="pipeline-row">
+            {STAGES.map(({ key, label, Icon }, i) => {
+              const state = settled
+                ? 'done'
+                : i < stage ? 'done' : i === stage ? 'active' : 'idle'
+              return (
+                <Fragment key={key}>
+                  {i > 0 && (
+                    <span className={`pipe-link ${!settled && i === stage ? 'flowing' : i <= stage ? 'passed' : ''}`} />
+                  )}
+                  <span className={`pipe-node pipe-${state}`}>
+                    <Icon />
+                    <span className="pipe-label">{label}</span>
+                  </span>
+                </Fragment>
+              )
+            })}
+          </div>
+          <p className={`pipe-caption ${settled ? 'pipe-caption-done' : ''}`}>
+            {STAGES[stage].caption} <span className="pipeline-hint">⤢</span>
+          </p>
+        </div>
+      )}
+    </button>
   )
 }

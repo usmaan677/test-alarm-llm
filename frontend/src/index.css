@@ -3,18 +3,23 @@
    green = normal/retrieved, amber = attention/no match, red = fault.
    Type: IBM Plex Mono for readouts/body, Chakra Petch for labels and controls. */
 
+/* Palette drawn from the Ibex Solutions logo: deep petrol-blue field,
+   steel-blue frame lines, white lettering, amber accent marks. */
 :root {
-  --bg: #0a0d10;
-  --grid: #0e1318;
-  --panel: #10151a;
-  --line: #232c33;
-  --line-strong: #3a4750;
-  --text: #c8d2d8;
-  --text-bright: #eaf2f6;
-  --text-dim: #66757f;
+  --bg: #0a1c2b;
+  --grid: #0e2334;
+  --panel: #11293d;
+  --line: #1e405a;
+  --line-strong: #33628a;
+  --accent: #4f9fd4;
+  --text: #c5d7e3;
+  --text-bright: #eef6fb;
+  --text-dim: #6f8da3;
   --ok: #46d97e;
-  --warn: #ffb000;
-  --fault: #ff5252;
+  --warn: #f5a623;
+  --fault: #ff5b5b;
+  --radius: 12px;
+  --radius-sm: 7px;
   --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   --display: 'Chakra Petch', var(--mono);
 }
@@ -38,11 +43,46 @@ body {
   line-height: 1.5;
 }
 
-/* Full-viewport app; only the transcript scrolls. */
-.console {
+/* Full-viewport HMI shell: title bar, alarm banner, nav tabs, then the
+   panel grid + AI column split. Only the panel grid and the AI transcript
+   scroll internally — the shell itself never scrolls. */
+.hmi {
   height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.hmi-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 16px;
+  padding: 16px clamp(16px, 3vw, 32px);
+}
+
+.hmi-panels {
+  flex: 2;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+/* Both rows split the available height evenly and their panels stretch to
+   fill it, so the mimic grid occupies the whole HMI area. */
+.hmi-row {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+  .hmi-body { flex-direction: column; }
+  .hmi-row { grid-template-columns: 1fr; }
 }
 
 /* ---- status bar ---- */
@@ -63,15 +103,12 @@ body {
   padding: 12px 24px;
 }
 
-.status-bar-mark {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: 18px;
-  color: var(--warn);
-  letter-spacing: 0.4em;
-  margin-right: -0.4em; /* balance the trailing tracking */
-  border: 1px solid var(--warn);
-  padding: 2px 10px 2px 14px;
+/* The logo JPG carries its own petrol-blue field; a slight rounding and the
+   panel behind it keep it from reading as a pasted-on rectangle. */
+.status-bar-logo {
+  display: block;
+  height: 36px;
+  border-radius: 5px;
 }
 
 .status-bar-title {
@@ -127,21 +164,13 @@ body {
 
 /* ---- transcript ---- */
 
-.chat {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  padding: 32px clamp(24px, 5vw, 80px);
-}
-
 .chat-empty {
   margin: auto;
   color: var(--text-dim);
   font-family: var(--display);
   font-size: 13px;
   letter-spacing: 0.3em;
+  text-align: center;
 }
 
 .exchange {
@@ -152,12 +181,13 @@ body {
 
 .exchange-question {
   align-self: flex-end;
-  max-width: 55%;
+  max-width: 90%;
   display: flex;
   gap: 12px;
   align-items: baseline;
   border: 1px solid var(--line-strong);
   border-right: 3px solid var(--warn);
+  border-radius: var(--radius-sm);
   background: var(--panel);
   padding: 10px 16px;
   word-break: break-word;
@@ -171,39 +201,15 @@ body {
   flex-shrink: 0;
 }
 
-/* Response panel with corner brackets, like an HMI callout. */
 .exchange-response {
-  position: relative;
   align-self: stretch;
   border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
   background: var(--panel);
-  padding: 18px 22px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.exchange-response::before,
-.exchange-response::after {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  pointer-events: none;
-}
-
-.exchange-response::before {
-  top: -1px;
-  left: -1px;
-  border-top: 2px solid var(--line-strong);
-  border-left: 2px solid var(--line-strong);
-}
-
-.exchange-response::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 2px solid var(--line-strong);
-  border-right: 2px solid var(--line-strong);
+  gap: 14px;
 }
 
 .response-pending {
@@ -222,6 +228,7 @@ body {
   letter-spacing: 0.18em;
   padding: 10px 16px;
   border: 1px solid;
+  border-radius: var(--radius-sm);
 }
 
 .banner-ok    { color: var(--ok);    border-color: var(--ok);    background: rgba(70, 217, 126, 0.06); }
@@ -244,6 +251,7 @@ body {
   background: var(--bg);
   border: 1px solid var(--line);
   border-left: 3px solid var(--ok);
+  border-radius: var(--radius-sm);
   padding: 16px 20px;
 }
 
@@ -295,6 +303,7 @@ body {
   letter-spacing: 0.15em;
   padding: 1px 8px;
   border: 1px solid;
+  border-radius: 999px;
 }
 
 .match-good   { color: var(--ok);    border-color: var(--ok);    background: rgba(70, 217, 126, 0.08); }
@@ -303,10 +312,9 @@ body {
 
 /* ---- bottom dock ---- */
 
-.dock {
+.ai-dock {
   border-top: 1px solid var(--line-strong);
-  background: var(--panel);
-  padding: 10px clamp(24px, 5vw, 80px) 8px;
+  padding: 10px 16px 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -347,6 +355,7 @@ body {
   min-width: 86px;
   padding: 10px 12px 8px;
   border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-dim);
   transition: color 0.3s, border-color 0.3s, box-shadow 0.3s;
@@ -386,6 +395,38 @@ body {
   flex-shrink: 0;
 }
 
+/* The pipeline readout was built for a full-width dock; shrink it to fit
+   the ~1/3-width AI column instead of overflowing. */
+.ai-dock .pipeline-row {
+  gap: 6px;
+}
+
+.ai-dock .pipe-node {
+  min-width: 0;
+  flex: 1;
+  padding: 7px 4px 6px;
+}
+
+.ai-dock .pipe-node svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ai-dock .pipe-label {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  margin-right: -0.1em;
+}
+
+.ai-dock .pipe-link {
+  width: 10px;
+}
+
+.ai-dock .pipe-caption {
+  font-size: 9px;
+  text-align: center;
+}
+
 .pipe-link.passed {
   background: var(--ok);
 }
@@ -422,6 +463,8 @@ body {
   display: flex;
   align-items: stretch;
   border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
   background: var(--bg);
 }
 
@@ -473,6 +516,15 @@ body {
   cursor: default;
 }
 
+.ai-dock .query-bar button {
+  padding: 0 14px;
+  font-size: 11px;
+}
+
+.ai-dock .query-bar input {
+  padding: 11px 8px;
+}
+
 .dock-footer {
   display: flex;
   justify-content: space-between;
@@ -491,4 +543,1008 @@ body {
 
 @keyframes blink {
   50% { opacity: 0.35; }
+}
+
+/* ==================================================================
+   HMI overview screen
+   ================================================================== */
+
+/* ---- alarm banner ---- */
+
+.alarm-banner {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--panel);
+}
+
+.alarm-count {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  border-right: 1px solid var(--line-strong);
+  padding: 0 20px;
+}
+
+.alarm-count-active {
+  color: var(--fault);
+  background: rgba(255, 82, 82, 0.08);
+}
+
+.alarm-list {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  overflow-x: auto;
+}
+
+.alarm-item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.alarm-item:hover {
+  border-color: var(--line-strong);
+}
+
+.alarm-none {
+  color: var(--text-dim);
+  font-family: var(--display);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  cursor: default;
+  border: none;
+}
+
+.alarm-glyph {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.alarm-glyph-critical { background: var(--fault); box-shadow: 0 0 6px var(--fault); }
+.alarm-glyph-warning  { background: var(--warn);  box-shadow: 0 0 6px var(--warn); }
+
+.alarm-critical { color: var(--fault); border-color: rgba(255, 82, 82, 0.4); }
+.alarm-warning  { color: var(--warn);  border-color: rgba(255, 176, 0, 0.4); }
+
+/* ---- nav tabs ---- */
+
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--bg);
+  padding: 0 clamp(16px, 3vw, 32px);
+}
+
+.nav-tabs-list {
+  display: flex;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  padding: 12px 14px;
+  cursor: not-allowed;
+}
+
+.nav-tab-active {
+  color: var(--warn);
+  border-bottom-color: var(--warn);
+  cursor: default;
+}
+
+.nav-tabs-pad {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+}
+
+/* ---- generic panel shell ---- */
+
+.hmi-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Push the readout grid down so short panels distribute their content
+   instead of leaving a dead zone at the bottom. */
+.hmi-panel > .tag-grid,
+.hmi-panel > .metrics-grid,
+.hmi-panel > .esd-grid {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.hmi-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hmi-panel-header h2 {
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--text-bright);
+  font-weight: 600;
+}
+
+.status-pill {
+  flex-shrink: 0;
+  font-family: var(--display);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  padding: 3px 10px;
+  border: 1px solid;
+  border-radius: 999px;
+}
+
+.status-pill-ok   { color: var(--ok);   border-color: var(--ok);   background: rgba(70, 217, 126, 0.08); }
+.status-pill-warn { color: var(--warn); border-color: var(--warn); background: rgba(255, 176, 0, 0.08); }
+
+/* ---- tag readouts (shared across mimic panels) ---- */
+
+.tag-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 16px;
+}
+
+.tag-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.tag-readout-clickable {
+  cursor: pointer;
+}
+
+.tag-readout-clickable:hover .tag-label {
+  color: var(--text);
+}
+
+.tag-label {
+  font-family: var(--display);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+}
+
+.tag-value {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--text-bright);
+}
+
+.tag-value-warning  { color: var(--warn); }
+.tag-value-critical { color: var(--fault); }
+
+.tag-unit {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-dim);
+  margin-left: 3px;
+}
+
+.tag-pill {
+  font-family: var(--display);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  width: fit-content;
+  padding: 1px 7px;
+  border: 1px solid;
+  border-radius: 999px;
+  margin-top: 1px;
+}
+
+.tag-pill-warning  { color: var(--warn);  border-color: var(--warn); }
+.tag-pill-critical { color: var(--fault); border-color: var(--fault); }
+
+/* ---- OTSG mimic ---- */
+
+.otsg-mimic {
+  display: flex;
+  gap: 10px;
+}
+
+.mimic-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 56px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  background: var(--bg);
+}
+
+.mimic-drum {
+  border-color: #3a6ea5;
+  color: #7fb2e0;
+  background: rgba(58, 110, 165, 0.08);
+}
+
+.mimic-firebox {
+  transition: color 0.4s, border-color 0.4s, background 0.4s;
+}
+
+.mimic-firebox-lit {
+  border-color: var(--fault);
+  color: #ff9a7a;
+  background: rgba(255, 82, 82, 0.1);
+}
+
+/* ---- well pair mimic ---- */
+
+.well-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.well-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 2px solid var(--line-strong);
+  padding-left: 10px;
+}
+
+.well-col-title {
+  font-family: var(--display);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+}
+
+.well-sdv {
+  width: fit-content;
+  margin-top: 2px;
+}
+
+.well-sor {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+/* ---- FWKO mimic ---- */
+
+.fwko-mimic {
+  display: flex;
+}
+
+.fwko-vessel {
+  flex: 1;
+  height: 56px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50% / 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  background: var(--bg);
+}
+
+/* ---- production trend ---- */
+
+.trend-panel {
+  grid-column: span 1;
+}
+
+/* preserveAspectRatio="none" lets the chart stretch to whatever height the
+   panel gives it, so the trend fills its cell like the other panels. */
+.trend-chart {
+  width: 100%;
+  flex: 1;
+  min-height: 110px;
+  overflow: visible;
+}
+
+.trend-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.trend-line {
+  fill: none;
+  stroke-width: 2;
+}
+
+.trend-line-steam { stroke: #46c6d9; }
+.trend-line-oil   { stroke: var(--ok); }
+.trend-line-water { stroke: var(--warn); stroke-dasharray: 4 3; }
+
+.trend-axis-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  fill: var(--text-dim);
+}
+
+.trend-legend {
+  display: flex;
+  gap: 16px;
+}
+
+.trend-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--display);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.trend-swatch {
+  width: 10px;
+  height: 2px;
+}
+
+.trend-swatch-steam { background: #46c6d9; }
+.trend-swatch-oil   { background: var(--ok); }
+.trend-swatch-water { background: var(--warn); }
+
+/* ---- key metrics ---- */
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 16px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ---- ESD status ---- */
+
+.esd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.esd-tile {
+  text-align: center;
+  padding: 8px 6px;
+}
+
+/* ---- AI panel (right column, ~1/3 width) ---- */
+
+.ai-panel {
+  flex: 1;
+  min-width: 300px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--panel);
+}
+
+@media (max-width: 1100px) {
+  .ai-panel {
+    max-width: none;
+    min-height: 420px;
+  }
+}
+
+/* Header takes the logo's steel-blue frame color. */
+.ai-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 10px 16px;
+}
+
+.ai-panel-icon {
+  font-size: 11px;
+}
+
+.ai-quick-ask {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-quick-ask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ai-chip {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.ai-chip:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text-bright);
+}
+
+.ai-chip:disabled {
+  color: var(--text-dim);
+  cursor: default;
+}
+
+.ai-transcript {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+}
+
+.ai-transcript-empty {
+  margin: auto;
+}
+
+.ai-dock-footer {
+  padding: 0 2px;
+}
+
+/* ---- clickable dock pipeline readout ---- */
+
+.pipeline-button {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.pipeline-button:hover {
+  background: rgba(79, 159, 212, 0.06);
+}
+
+.pipeline-hint {
+  color: var(--text-dim);
+  letter-spacing: 0.14em;
+  margin-left: 6px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.pipeline-button:hover .pipeline-hint {
+  opacity: 1;
+}
+
+/* ==================================================================
+   Pipeline detail modal — full animated process view
+   ================================================================== */
+
+.pd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(4, 12, 20, 0.72);
+  backdrop-filter: blur(4px);
+  animation: pd-fade 0.2s ease-out;
+}
+
+@keyframes pd-fade {
+  from { opacity: 0; }
+}
+
+.pd-modal {
+  width: min(1180px, 96vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  animation: pd-rise 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes pd-rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+}
+
+.pd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.pd-header h2 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.16em;
+  color: var(--text-bright);
+}
+
+.pd-subtitle {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--display);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+}
+
+.pd-close {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pd-close:hover {
+  border-color: var(--fault);
+  color: var(--fault);
+}
+
+/* ---- the schematic scene ---- */
+
+.pd-scene {
+  padding: 30px 28px 6px;
+}
+
+.pd-scene svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Stations are drawn with strokes in currentColor so one class flip
+   recolors the whole glyph. */
+.pd-station {
+  color: var(--text-dim);
+  transition: color 0.3s;
+}
+
+.pd-station rect,
+.pd-station path:not(.pd-check),
+.pd-station ellipse {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.3s;
+}
+
+.pd-station-active {
+  color: var(--warn);
+}
+
+.pd-station-active > rect:first-of-type {
+  filter: drop-shadow(0 0 8px rgba(245, 166, 35, 0.45));
+}
+
+.pd-station-done {
+  color: var(--ok);
+}
+
+.pd-st-label {
+  fill: currentColor;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+
+.pd-st-sub {
+  fill: var(--text-dim);
+  font-family: var(--display);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+}
+
+.pd-alarm-tri {
+  stroke: var(--fault) !important;
+}
+
+/* ---- SOP library feeder (index-time context, always steel-blue) ---- */
+
+.pd-lib {
+  color: var(--accent);
+  opacity: 0.75;
+}
+
+.pd-lib rect,
+.pd-lib path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pd-lib-label {
+  fill: var(--accent);
+  font-family: var(--display);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+/* dashed feed lines drift slowly — the library is always "flowing" into
+   the index, just not per-query */
+.pd-lib-feed {
+  stroke-dasharray: 3 5;
+  opacity: 0.6;
+  animation: pd-dash 4s linear infinite;
+}
+
+/* ---- guardrail shield on the LLM ---- */
+
+.pd-shield path {
+  stroke: var(--accent) !important;
+  stroke-width: 1.8;
+}
+
+.pd-shield-label {
+  fill: var(--accent);
+  font-family: var(--display);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+
+.pd-st-sub-score {
+  fill: var(--ok);
+}
+
+/* embedding cells fill in one by one while the stage runs */
+.pd-cell {
+  fill: currentColor;
+  stroke: none !important;
+  opacity: 0.3;
+}
+
+.pd-cell-anim {
+  animation: pd-cell-fill 1.1s ease-in-out infinite;
+}
+
+@keyframes pd-cell-fill {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+/* vector field */
+.pd-fdot {
+  fill: currentColor;
+  stroke: none !important;
+  opacity: 0.45;
+}
+
+.pd-fdot-hit {
+  opacity: 0.45;
+  transition: fill 0.3s, opacity 0.3s;
+}
+
+.pd-fdot-hit.lit {
+  fill: var(--ok);
+  opacity: 1;
+  filter: drop-shadow(0 0 5px rgba(70, 217, 126, 0.8));
+}
+
+/* radar / inference pulse rings */
+.pd-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pd-ring 1.4s ease-out infinite;
+}
+
+.pd-ring-late {
+  animation-delay: 0.7s;
+}
+
+@keyframes pd-ring {
+  from { transform: scale(0.3); opacity: 0.9; }
+  to { transform: scale(2.6); opacity: 0; }
+}
+
+/* retrieved chunks slide up into place */
+.pd-doc {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+
+.pd-doc-back {
+  transition-delay: 0.15s;
+}
+
+.pd-doc.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* the delivery checkmark draws itself */
+.pd-check {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 34;
+  stroke-dashoffset: 34;
+}
+
+.pd-check.drawn {
+  animation: pd-draw 0.5s ease-out forwards;
+}
+
+@keyframes pd-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* connectors */
+.pd-seg {
+  stroke: var(--line);
+  stroke-width: 2;
+  transition: stroke 0.3s;
+}
+
+.pd-seg.passed {
+  stroke: var(--ok);
+}
+
+.pd-seg.flowing {
+  stroke: var(--warn);
+  stroke-width: 3;
+  stroke-dasharray: 6 6;
+  animation: pd-dash 0.45s linear infinite;
+}
+
+@keyframes pd-dash {
+  to { stroke-dashoffset: -12; }
+}
+
+.pd-seg-head {
+  fill: var(--line);
+  transition: fill 0.3s;
+}
+
+.pd-seg-head.passed { fill: var(--ok); }
+.pd-seg-head.flowing { fill: var(--warn); }
+
+.pd-packet {
+  fill: var(--warn);
+  filter: drop-shadow(0 0 4px rgba(245, 166, 35, 0.8));
+}
+
+/* ---- live query in / answer out ---- */
+
+.pd-io {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 14px 28px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  padding: 10px 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.pd-io-q,
+.pd-io-a {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pd-io-q {
+  color: var(--warn);
+}
+
+.pd-io-a {
+  color: var(--text);
+  border-left: 1px solid var(--line);
+  padding-left: 16px;
+}
+
+/* ---- in-modal query bar ---- */
+
+.pd-query-bar {
+  margin: 0 28px 14px;
+}
+
+/* ---- step-by-step explainer cards, synced to the scene ---- */
+
+.pd-steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin: 0 28px 20px;
+}
+
+.pd-step {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.pd-step-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.pd-step-num {
+  font-family: var(--display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.pd-step h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-bright);
+}
+
+.pd-step p {
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.pd-step-active {
+  border-color: var(--warn);
+  box-shadow: 0 0 14px rgba(245, 166, 35, 0.14);
+}
+
+.pd-step-active h3,
+.pd-step-active .pd-step-num {
+  color: var(--warn);
+}
+
+.pd-step-active p {
+  color: var(--text);
+}
+
+.pd-step-done {
+  border-color: rgba(70, 217, 126, 0.45);
+}
+
+.pd-step-done h3 {
+  color: var(--ok);
+}
+
+/* ---- narration caption ---- */
+
+.pd-caption {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-align: center;
+  color: var(--warn);
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+  padding: 14px 24px;
+}
+
+.pd-caption-done {
+  color: var(--ok);
+}
+
+@media (max-width: 900px) {
+  .pd-io {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .pd-io-a {
+    border-left: none;
+    padding-left: 0;
+  }
+  .pd-steps {
+    grid-template-columns: 1fr;
+  }
 }

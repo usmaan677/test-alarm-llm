@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { checkHealth } from '../api'
+import logo from '../assets/ibex-logo.jpg'
 
 const HEALTH_POLL_MS = 15000
 
@@ -31,8 +32,8 @@ export default function StatusBar() {
   return (
     <header className="status-bar">
       <div className="status-bar-id">
-        <span className="status-bar-mark">IBEX</span>
-        <span className="status-bar-title">ALARM ASSIST — PROCEDURE CONSOLE</span>
+        <img className="status-bar-logo" src={logo} alt="Ibex Solutions" />
+        <span className="status-bar-title">SAGD HMI OVERVIEW — PAD A</span>
       </div>
       <div className="status-bar-right">
         <span className="status-bar-link">
