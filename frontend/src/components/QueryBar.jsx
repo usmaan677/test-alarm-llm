@@ -1,6 +1,10 @@
 import { useState } from 'react'
+import ModelSelect from './ModelSelect'
 
-export default function QueryBar({ onSubmit, busy }) {
+// The model picker sits under the input, inside the same bordered box, so the
+// choice reads as part of composing the query. QueryBar is also used inside
+// PipelineDetail, which passes no models — the tools row is omitted there.
+export default function QueryBar({ onSubmit, busy, models, model, onModelChange }) {
   const [text, setText] = useState('')
 
   function handleSubmit(e) {
@@ -28,6 +32,12 @@ export default function QueryBar({ onSubmit, busy }) {
           {busy ? 'QUERYING' : 'EXECUTE'}
         </button>
       </div>
+
+      {models?.length > 0 && (
+        <div className="query-bar-tools">
+          <ModelSelect models={models} model={model} onChange={onModelChange} />
+        </div>
+      )}
     </form>
   )
 }

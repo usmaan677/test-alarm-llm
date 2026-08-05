@@ -459,17 +459,29 @@ body {
   color: var(--ok);
 }
 
-.query-bar-row {
-  display: flex;
-  align-items: stretch;
+/* The composer is the bordered box; the input row and the tools row below it
+   share that frame the way a chat composer does. */
+.query-bar {
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--bg);
 }
 
-.query-bar-row:focus-within {
+.query-bar:focus-within {
   border-color: var(--warn);
+}
+
+.query-bar-row {
+  display: flex;
+  align-items: stretch;
+}
+
+.query-bar-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 7px;
 }
 
 .query-bar-prompt {
@@ -1001,6 +1013,89 @@ body {
   color: var(--bg);
   background: var(--accent);
   padding: 10px 16px;
+}
+
+/* ---- LLM picker in the panel header ---- */
+
+.model-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.model-select-label {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  opacity: 0.75;
+}
+
+.model-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg);
+  color: var(--text-bright);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  font-family: var(--display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 3px 22px 3px 8px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%234f9fd4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.model-select select:focus {
+  outline: none;
+  border-color: var(--text-bright);
+}
+
+.model-select option:disabled {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* Inside the composer, label and select are one chip: the border lives on the
+   wrapper so "LLM llama3.2:3b" highlights as a single control, and the whole
+   thing stays quiet until you reach for it — the input holds the eye. */
+.query-bar-tools .model-select {
+  gap: 7px;
+  padding: 2px 7px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.query-bar-tools .model-select:hover,
+.query-bar-tools .model-select:focus-within {
+  border-color: var(--line-strong);
+}
+
+.query-bar-tools .model-select-label {
+  font-family: var(--display);
+  font-size: 10px;
+  color: var(--text-dim);
+  opacity: 1;
+}
+
+.query-bar-tools .model-select select {
+  background-color: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 12px;
+  padding: 1px 14px 1px 0;
+  background-position: right 1px center;
+}
+
+.query-bar-tools .model-select:hover .model-select-label,
+.query-bar-tools .model-select:focus-within .model-select-label {
+  color: var(--text);
+}
+
+.query-bar-tools .model-select:hover select,
+.query-bar-tools .model-select:focus-within select {
+  color: var(--text-bright);
 }
 
 .ai-panel-icon {

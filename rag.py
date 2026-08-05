@@ -42,7 +42,7 @@ SYSTEM_PROMPT = (
 )
 
 #Module level handle to the query engine 
-_query_engine = None
+_query_engine = {}
 
 
 def _load_procedure_chunks():
@@ -83,13 +83,16 @@ def _load_procedure_chunks():
     return documents
 
 
-def _build_query_engine():
+def _build_query_engine(model):
     """Set up models, load or build the Chroma index, return a query engine."""
-    Settings.llm = Ollama(
-        model=config.LLM_MODEL,
-        request_timeout=config.REQUEST_TIMEOUT,
-        system_prompt=SYSTEM_PROMPT,
+    llm = Ollama(
+        model = model,
+        request_timeout = config.REQUEST_TIMEOUT,
+        system_prompt = SYSTEM_PROMPT,
+        context_window = config.CONTEXT_WINDOW,
+        additional_kwargs= {"num_ctx":config.CONTEXT_WINDOW},
     )
+    Settings.llm = llm
     Settings.embed_model = OllamaEmbedding(model_name=config.EMBED_MODEL)
  
     chroma_client = chromadb.PersistentClient(path=config.CHROMA_PATH)
@@ -108,19 +111,23 @@ def _build_query_engine():
         index = VectorStoreIndex.from_vector_store(vector_store)
  
     return index.as_query_engine(
+        llm=llm,
         similarity_top_k=config.SIMILARITY_TOP_K,
         response_mode=config.RESPONSE_MODE,
     )
 #returns the shared query engine, builds it if it is not built already
-def get_query_engine():
-    global _query_engine
-    if _query_engine is None:
-        _query_engine = _build_query_engine()
-    return _query_engine
+def get_query_engine(model=None):
+    model = model or config.LLM_MODEL
+    if model not in config.AVAILABLE_MODELS:
+        raise ValueError(f"Unknown model: {model}")
+    if model not in _query_engine:
+        _query_engine[model] = _build_query_engine(model)
+    return _query_engine[model]
 
 #Runs one query and returns the answer and the citations for the sources used
-def answer_query(question):
-    engine = get_query_engine()
+def answer_query(question, model = None):
+    model = model or config.LLM_MODEL
+    engine = get_query_engine(model)
     response = engine.query(question)
  
     # Pull out which source chunks were retrieved, for the audit trail.
@@ -131,7 +138,7 @@ def answer_query(question):
             "score": round(float(node.score), 4) if node.score is not None else None,
         })
  
-    return {"answer": str(response), "sources": sources}
+    return {"answer": str(response), "sources": sources, "model": model}
 
 
 

@@ -8,7 +8,7 @@ import usePipelineStage from '../hooks/usePipelineStage'
 // The AI assistant lives here as a single dockable column rather than the
 // full-screen console it used to be — the HMI mimics are the primary
 // display now; this panel is the "if you need it" side channel.
-export default function AiPanel({ exchanges, busy, onSubmit, alarms }) {
+export default function AiPanel({ exchanges, busy, onSubmit, alarms, models, model, onModelChange }) {
   const chatEndRef = useRef(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const { stage, settled } = usePipelineStage(busy)
@@ -51,7 +51,13 @@ export default function AiPanel({ exchanges, busy, onSubmit, alarms }) {
 
       <div className="ai-dock">
         <PipelineStatus busy={busy} stage={stage} settled={settled} onOpenDetail={() => setDetailOpen(true)} />
-        <QueryBar onSubmit={onSubmit} busy={busy} />
+        <QueryBar
+          onSubmit={onSubmit}
+          busy={busy}
+          models={models}
+          model={model}
+          onModelChange={onModelChange}
+        />
         <div className="dock-footer ai-dock-footer">
           <span>SOP-032 · ALARM RESPONSE</span>
           <span>TOP-K 2</span>

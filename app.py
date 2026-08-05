@@ -5,11 +5,13 @@ all the real work is in rag.py and audit.py
 """
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+
 
 import rag
 import audit
+import config
 
 @asynccontextmanager
 async def lifespan(app):
@@ -22,13 +24,21 @@ app = FastAPI(title = "Ibex Alarm Assist", lifespan=lifespan)
 
 class Query(BaseModel):
     question: str
+    model: str | None = None
 
 @app.get("/health")
 def health():
     return {"status":"ok"}
 
+@app.get("/models")
+def models():
+    return {"models":config.AVAILABLE_MODELS, "default":config.LLM_MODEL}
+
 @app.post("/query")
 def query_endpoint(q:Query):
-    result = rag.answer_query(q.question)
-    audit.write_entry(q.question, result["answer"],result["sources"])
+    try:
+        result = rag.answer_query(q.question,q.model)
+    except:
+        raise HTTPException(status_code =400, detail = str(e))
+    audit.write_entry(q.question, result["answer"],result["sources"], result["model"])
     return result

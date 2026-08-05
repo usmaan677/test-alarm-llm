@@ -11,13 +11,14 @@ from datetime import datetime, timezone
 
 import config
 
-def write_entry(question, answer, sources):
+def write_entry(question, answer, sources, model=None):
     #Appends one audit record.
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "question": question,
         "answer": answer,
         "sources": sources,
+        "model": model,
     }
     try:
         with open(config.AUDIT_LOG_PATH, "a", encoding="utf-8") as f:

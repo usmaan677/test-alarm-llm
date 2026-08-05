@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import StatusBar from './components/StatusBar'
 import AlarmBanner from './components/AlarmBanner'
 import NavTabs from './components/NavTabs'
@@ -10,7 +10,7 @@ import ProductionTrend from './components/panels/ProductionTrend'
 import KeyMetrics from './components/panels/KeyMetrics'
 import EsdStatus from './components/panels/EsdStatus'
 import useProcessData from './hooks/useProcessData'
-import { askQuestion } from './api'
+import { askQuestion, fetchModels } from './api'
 
 // HMI overview screen: equipment mimics + trend/metrics/ESD tiles occupy the
 // main area, with the AI assistant docked as a single column on the right
@@ -19,17 +19,26 @@ import { askQuestion } from './api'
 // column only.
 export default function App() {
   const [exchanges, setExchanges] = useState([])
+  const [models, setModels] = useState([])
+  const [model, setModel] = useState('')
   const nextId = useRef(1)
   const { tags, alarms } = useProcessData()
 
   const busy = exchanges.some((e) => e.status === 'pending')
+
+  useEffect(() => {
+    fetchModels().then(({ models, defaultModel }) => {
+      setModels(models)
+      setModel(defaultModel)
+    })
+  }, [])
 
   async function handleSubmit(question) {
     const id = nextId.current++
     setExchanges((prev) => [...prev, { id, question, status: 'pending', result: null }])
     let update
     try {
-      const result = await askQuestion(question)
+      const result = await askQuestion(question, model)
       update = { status: 'done', result }
     } catch {
       update = { status: 'error' }
@@ -57,7 +66,15 @@ export default function App() {
           </div>
         </div>
 
-        <AiPanel exchanges={exchanges} busy={busy} onSubmit={handleSubmit} alarms={alarms} />
+        <AiPanel
+          exchanges={exchanges}
+          busy={busy}
+          onSubmit={handleSubmit}
+          alarms={alarms}
+          models={models}
+          model={model}
+          onModelChange={setModel}
+        />
       </div>
     </div>
   )
